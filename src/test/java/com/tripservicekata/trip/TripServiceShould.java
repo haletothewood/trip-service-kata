@@ -3,25 +3,30 @@ package com.tripservicekata.trip;
 import com.tripservicekata.exception.UserNotLoggedInException;
 import com.tripservicekata.user.User;
 import com.tripservicekata.user.UserBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 public class TripServiceShould {
 
-    private TripService tripService = new TestableTripService();
+    private TripDAO tripDao;
+    private TripService tripService;
     private static final User GUEST = null;
     private static final User REGISTERED_USER = new User();
     private static final User TIMMY = new User();
     private static final User UNUSED_USER = new User();
     private static final Trip TO_LONDON = new Trip();
     private static final Trip TO_SYDNEY = new Trip();
-    private List<Trip> trips = new ArrayList<>();
+
+    @BeforeEach
+    void setUp() {
+        tripDao = Mockito.mock(TripDAO.class);
+        tripService = new TripService(tripDao);
+    }
 
     @Test
     void throw_exception_when_user_not_logged_in() {
@@ -52,17 +57,7 @@ public class TripServiceShould {
                 .withTrips(TO_LONDON, TO_SYDNEY)
                 .build();
 
-        trips.add(TO_LONDON);
-        trips.add(TO_SYDNEY);
-
+        when(tripDao.tripsBy(user)).thenReturn(user.trips());
         assertThat(tripService.getTripsByUser(user, REGISTERED_USER)).containsExactly(TO_LONDON, TO_SYDNEY);
-    }
-
-    private class TestableTripService extends TripService {
-
-        @Override
-        protected List<Trip> findTripsByUser(User user) {
-            return trips;
-        }
     }
 }

@@ -8,6 +8,12 @@ import java.util.List;
 
 public class TripService {
 
+    private TripDAO tripDAO;
+
+    public TripService(TripDAO tripDAO) {
+        this.tripDAO = tripDAO;
+    }
+
     public List<Trip> getTripsByUser(User user, User loggedInUser) throws UserNotLoggedInException {
         if (loggedInUser == null) {
             throw new UserNotLoggedInException();
@@ -21,7 +27,7 @@ public class TripService {
         return new ArrayList<>();
     }
 
-    protected List<Trip> findTripsByUser(User user) {
-        return TripDAO.findTripsByUser(user);
+    private List<Trip> findTripsByUser(User user) {
+        return tripDAO.tripsBy(user);
     }
 }
