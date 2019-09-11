@@ -29,7 +29,6 @@ public class TripServiceShould {
         assertThrows(UserNotLoggedInException.class, () -> tripService.getTripsByUser(loggedInUser));
     }
 
-
     @Test
     void provide_no_trips_for_a_user_with_no_friends() {
         User user = new User();
