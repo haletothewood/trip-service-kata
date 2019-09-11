@@ -2,6 +2,7 @@ package com.tripservicekata.trip;
 
 import com.tripservicekata.exception.UserNotLoggedInException;
 import com.tripservicekata.user.User;
+import com.tripservicekata.user.UserBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class TripServiceShould {
     private static final User GUEST = null;
     private static final User REGISTERED_USER = mock(User.class);
     private static final User TIMMY = new User();
-    private User loggedInUser;
+    private User loggedInUser = REGISTERED_USER;
     private TripService tripService = new TestableTripService();
     private static final Trip TO_LONDON = new Trip();
     private static final Trip TO_SYDNEY = new Trip();
@@ -37,10 +38,10 @@ public class TripServiceShould {
 
     @Test
     void provides_no_trips_for_a_user_not_friends_with_logged_in_user() {
-        User user = new User();
-        user.addFriend(TIMMY);
-        user.addTrip(TO_LONDON);
-        user.addTrip(TO_SYDNEY);
+        User user = UserBuilder.aUser()
+                .withFriends(TIMMY)
+                .withTrips(TO_LONDON, TO_SYDNEY)
+                .build();
 
         assertThat(tripService.getTripsByUser(user)).isEmpty();
     }
@@ -48,11 +49,10 @@ public class TripServiceShould {
     @Test
     void provides_trips_for_a_user_friends_with_logged_in_user() {
 
-        User user = new User();
-        user.addFriend(TIMMY);
-        user.addFriend(loggedInUser);
-        user.addTrip(TO_LONDON);
-        user.addTrip(TO_SYDNEY);
+        User user = UserBuilder.aUser()
+                .withFriends(TIMMY, loggedInUser)
+                .withTrips(TO_LONDON, TO_SYDNEY)
+                .build();
 
         trips.add(TO_LONDON);
         trips.add(TO_SYDNEY);
