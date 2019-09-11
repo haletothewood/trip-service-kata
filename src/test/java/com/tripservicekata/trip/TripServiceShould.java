@@ -15,9 +15,11 @@ public class TripServiceShould {
 
     private static final User GUEST = null;
     private static final User REGISTERED_USER = mock(User.class);
+    private static final User TIMMY = new User();
     private User loggedInUser;
     private TripService tripService = new TestableTripService();
-    private Trip TO_LONDON = new Trip();
+    private static final Trip TO_LONDON = new Trip();
+    private static final Trip TO_SYDNEY = new Trip();
     private List<Trip> trips = new ArrayList<>();
 
     @Test
@@ -29,22 +31,33 @@ public class TripServiceShould {
 
     @Test
     void provide_no_trips_for_a_user_with_no_friends() {
-        loggedInUser = REGISTERED_USER;
         User user = new User();
-        assertThat(tripService.getTripsByUser(user).size()).isEqualTo(0);
+        assertThat(tripService.getTripsByUser(user)).isEmpty();
     }
 
     @Test
-    void provides_trips_for_a_user_with_friends() {
-        loggedInUser = REGISTERED_USER;
+    void provides_no_trips_for_a_user_not_friends_with_logged_in_user() {
         User user = new User();
+        user.addFriend(TIMMY);
+        user.addTrip(TO_LONDON);
+        user.addTrip(TO_SYDNEY);
+
+        assertThat(tripService.getTripsByUser(user)).isEmpty();
+    }
+
+    @Test
+    void provides_trips_for_a_user_friends_with_logged_in_user() {
+
+        User user = new User();
+        user.addFriend(TIMMY);
         user.addFriend(loggedInUser);
         user.addTrip(TO_LONDON);
-        trips = new ArrayList<Trip>(){{
-            add(TO_LONDON);
-        }};
+        user.addTrip(TO_SYDNEY);
 
-        assertThat(tripService.getTripsByUser(user)).contains(TO_LONDON);
+        trips.add(TO_LONDON);
+        trips.add(TO_SYDNEY);
+
+        assertThat(tripService.getTripsByUser(user)).containsExactly(TO_LONDON, TO_SYDNEY);
     }
 
     private class TestableTripService extends TripService {
